@@ -14,19 +14,21 @@ if (-not (Test-Path "$PSScriptRoot\dist\SecurePDFRedactor\SecurePDFRedactor.exe"
 
 # 2. Locate the Inno Setup compiler.
 function Find-InnoCompiler {
-    $candidates = @(
+    # Select-Object is used instead of indexing pipeline output because a single
+    # PowerShell string indexed with [0] returns only its first character.
+    $candidate = @(
         "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe",
         "${env:ProgramFiles}\Inno Setup 6\ISCC.exe",
         "${env:LOCALAPPDATA}\Programs\Inno Setup 6\ISCC.exe"
-    ) | Where-Object { $_ -and (Test-Path $_) }
+    ) | Where-Object { $_ -and (Test-Path $_) } | Select-Object -First 1
 
-    if ($candidates.Count -gt 0) {
-        return $candidates[0]
+    if ($candidate) {
+        return [string]$candidate
     }
 
     $cmd = Get-Command ISCC.exe -ErrorAction SilentlyContinue
     if ($cmd) {
-        return $cmd.Source
+        return [string]$cmd.Source
     }
 
     return $null
@@ -67,6 +69,7 @@ if (Test-Path "$PSScriptRoot\release") {
 
 Write-Host ""
 Write-Host "Building installer..." -ForegroundColor Cyan
+Write-Host "Using Inno Setup compiler: $iscc" -ForegroundColor DarkGray
 & $iscc "$PSScriptRoot\installer.iss"
 
 if ($LASTEXITCODE -ne 0) {
