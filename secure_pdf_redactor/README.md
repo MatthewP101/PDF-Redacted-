@@ -76,3 +76,47 @@ Distribute the entire `SecurePDFRedactor` folder. The target computer does not n
 ## Licensing note
 
 PyMuPDF / MuPDF is AGPL-licensed with commercial licensing available. If this app will be distributed as proprietary software or deployed by an organisation, review the licence obligations before rollout.
+
+## Create a professional Windows installer
+
+For distribution to another user, do **not** send the `dist` folder manually.
+Build a single Windows installer instead:
+
+```powershell
+Set-ExecutionPolicy -Scope Process Bypass
+.\build_release.ps1
+```
+
+The first time you run it, the script will offer to install **Inno Setup 6** with
+`winget` if the Inno compiler is not already installed.
+
+The finished file is placed in:
+
+```text
+release\SecurePDFRedactor-Setup-1.0.0.exe
+```
+
+That is the only file you need to give the recipient. The installer installs the
+application under the current user's local Programs directory, adds a Start Menu
+shortcut, offers an optional desktop shortcut, and provides a normal Windows
+uninstaller. The recipient does not need Python, VS Code, the source code, or the
+PyInstaller build folder.
+
+A SHA-256 checksum is also written to the `release` directory for release
+verification.
+
+### Windows trust / code signing
+
+The installer is functional without a digital signature, but Windows may show an
+"Unknown publisher" or SmartScreen warning for an unsigned installer. For wider
+workplace distribution, sign both the application executable and the installer
+with an Authenticode code-signing certificate. Do not tell recipients to disable
+Windows security controls to bypass warnings.
+
+### Licensing note
+
+This project currently uses PyMuPDF. Review its licensing before distributing the
+application within an organisation or as a closed-source product. If the intended
+distribution is not compatible with the library licence, obtain the appropriate
+commercial licence or replace the PDF backend with one whose licence fits the
+project.

@@ -9,7 +9,8 @@ if (-not (Test-Path ".venv")) {
 & .\.venv\Scripts\python.exe -m pip install --upgrade pip
 & .\.venv\Scripts\python.exe -m pip install -r requirements-build.txt
 
-# onedir avoids the onefile runtime extraction behaviour and is easier to audit.
+# onedir avoids the onefile runtime extraction behaviour. The installer then
+# packages this directory so end users receive a single setup EXE.
 & .\.venv\Scripts\python.exe -m PyInstaller `
     --noconfirm `
     --clean `
@@ -18,6 +19,13 @@ if (-not (Test-Path ".venv")) {
     --name "SecurePDFRedactor" `
     app.py
 
+if ($LASTEXITCODE -ne 0) {
+    throw "PyInstaller failed with exit code $LASTEXITCODE"
+}
+
 Write-Host ""
-Write-Host "Build complete: $PSScriptRoot\dist\SecurePDFRedactor\SecurePDFRedactor.exe"
-Write-Host "Distribute the entire SecurePDFRedactor folder, not only the EXE."
+Write-Host "Application build complete:" -ForegroundColor Green
+Write-Host "  $PSScriptRoot\dist\SecurePDFRedactor\SecurePDFRedactor.exe"
+Write-Host ""
+Write-Host "For a professional single-file installer, run:" -ForegroundColor Yellow
+Write-Host "  .\build_release.ps1"
